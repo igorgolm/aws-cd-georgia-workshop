@@ -124,7 +124,7 @@ helm install aws-cd-georgia-demo-app . -f values.yaml -n demo --create-namespace
 
 Check that helm release was created.
 If our policy is working, the deployment will be downscaled to 0 replicas, because of critical vulnerability and in Stackrox dashboard we can see the violation.
-![Stackrox critical violation](stackrox-policy-violations.png)
+![Stackrox critical violation](images/stackrox-policy-violations.png)
 
 Also, relay webhook will be called with the vulnerability information and relay will dispatch event to GitHub Actions workflow. Workflow will patch the image and push it to the registry.
 ![Patched Image](images/github-patched-image.png)
