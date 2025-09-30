@@ -138,7 +138,6 @@ helm upgrade aws-cd-georgia-demo-app . -f values.yaml -n demo
 ```
 
 Check that the deployment was scaled back to 1 replica.
-![Scaled Back Deployment](images/github-scaled-back-deployment.png)
 
 Go to Stackrox Vulnerability Management and check image vulnerability status. Now it should show that the all fixable vulnerabilities are fixed.
 ![Stackrox fixed vulnerabilities](images/stackrox-image-fixed.png)
