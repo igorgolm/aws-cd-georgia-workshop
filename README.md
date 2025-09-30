@@ -57,7 +57,7 @@ We'll install StackRox Secured Cluster Services in the cluster using official He
 
 ```bash
 $ helm repo add stackrox https://raw.githubusercontent.com/stackrox/helm-charts/main/opensource/
-$helm repo update
+$ helm repo update
 $ helm install stackrox-secured-cluster-services stackrox/stackrox-secured-cluster-services -f stackrox/secured-cluster-services/values.yaml  -f stackrox/secured-cluster-services/values-init-bundle.yaml -n stackrox --version 400.8.4
 ```
 
@@ -83,7 +83,7 @@ configmap:
   GH_TOKEN: "your-token"
 ```
 
-2. Create a random secret for StackRox webhook.
+2. Create a random secret for StackRox webhook. It is used to authenticate the relay with StackRox.
 ```yaml
 configmap:
   STACKROX_WEBHOOK_SECRET: "your-secret"
