@@ -1,0 +1,26 @@
+clusterName: main
+createSecrets: true
+scanner:
+  disabled: true
+scannerV4:
+  autoscaling:
+    disable: true
+  disabled: true
+admissionControl:
+  listenOnCreates: true
+  listenOnUpdates: true
+  listenOnEvents: true
+  dynamic:
+    enforceOnCreates: true
+    enforceOnUpdates: true
+image:
+  collector:
+    tag: 4.8.4-8-gb85bd11c2c-amd64 # Because of Apple Silicon
+sensor:
+  resources:
+    limits:
+      cpu: 500m
+      memory: 2Gi
+    requests:
+      cpu: 200m
+      memory: 1Gi

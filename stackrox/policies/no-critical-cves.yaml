@@ -1,0 +1,35 @@
+apiVersion: config.stackrox.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: no-critical-cves
+spec:
+  policyName: No Critical CVEs
+  categories:
+    - Kubernetes
+    - Vulnerability Management
+  lifecycleStages:
+    - DEPLOY
+  eventSource: NOT_APPLICABLE
+  scope:
+    - cluster: ed1c6b50-da2a-4e2b-af1d-78c9453ab77d # Update this to your cluster ID
+      namespace: demo
+  severity: CRITICAL_SEVERITY
+  enforcementActions:
+    - SCALE_TO_ZERO_ENFORCEMENT
+    - UNSATISFIABLE_NODE_CONSTRAINT_ENFORCEMENT
+  notifiers:
+    - stackrox-relay
+  policySections:
+    - sectionName: Rule 1
+      policyGroups:
+        - fieldName: Severity
+          booleanOperator: OR
+          values:
+            - value: CRITICAL
+        - fieldName: Fixable
+          booleanOperator: OR
+          values:
+            - value: "true"
+  criteriaLocked: false
+  mitreVectorsLocked: false
+  isDefault: false

@@ -1,0 +1,56 @@
+customize:
+  central:
+    podAnnotations:
+      cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
+  scanner-v4-db:
+    podAnnotations:
+      cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
+system:
+  enablePodSecurityPolicies: false
+env:
+  platform: default
+  istio: false
+central:
+  db:
+    resources:
+      limits:
+        cpu: 400m
+        memory: 2Gi
+      requests:
+        cpu: 100m
+        memory: 1Gi
+    persistence:
+      storageClass: "local-path"
+      size: 2Gi
+  resources:
+    limits:
+      cpu: 400m
+      memory: 1Gi
+    requests:
+      cpu: 100m
+      memory: 500Mi
+scanner:
+  disable: true
+scannerV4:
+  autoscaling:
+    disable: true
+  disable: false
+  db:
+    password:
+      generate: true
+    serviceTLS:
+      generate: true
+    persistence:
+      persistentVolumeClaim:
+        storageClass: "local-path"
+        size: 2Gi
+        createClaim: true
+    autoscaling:
+      disable: false
+      maxReplicas: 2
+      minReplicas: 1
+  matcher:
+    autoscaling:
+      disable: false
+      maxReplicas: 2
+      minReplicas: 1
