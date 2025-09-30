@@ -46,9 +46,9 @@ Then, you can access the StackRox Central Services via the browser at https://lo
 
 #### Stackrox Setup
 Go to the StackRox Central Services and create a new init bundle.
-![StackRox Init Bundle](stackrox-init-bundle.png)
+![StackRox Init Bundle](images/stackrox-init-bundle.png)
 Choose name and platform for the init bundle.
-![StackRox Init Bundle](stackrox-create-bundle.png)
+![StackRox Init Bundle](images/stackrox-create-bundle.png)
 
 Init bundle will be created and downloaded to your local machine. We'll use it later to install the StackRox Secured Cluster Services.
 
@@ -62,7 +62,7 @@ $ helm install stackrox-secured-cluster-services stackrox/stackrox-secured-clust
 ```
 
 After the installation is complete we can see in the Clusters our new cluster `main`.
-![StackRox Clusters](stackrox-clusters.png)
+![StackRox Clusters](images/stackrox-clusters.png)
 
 ### StackRox Relay Installation
 We need this service to relay events from StackRox to GitHub. We'll install it using Helm chart from our repository.
@@ -101,7 +101,7 @@ helm install stackrox-relay . -f values.yaml -n stackrox
 ```
 
 4. Create a Generic Webhook in StackRox.
-![StackRox Generic Webhook](stackrox-generic-webhook.png)
+![StackRox Generic Webhook](images/stackrox-generic-webhook.png)
 - name: `stackrox-relay`
 - Endpoint: `http://stackrox-relay.stackrox.svc.cluster.local/webhook` (cluster internal address)
 - Headers: `X-ACS-TOKEN: <value of STACKROX_WEBHOOK_SECRET>`
@@ -127,7 +127,7 @@ If our policy is working, the deployment will be downscaled to 0 replicas, becau
 ![Stackrox critical violation](stackrox-policy-violations.png)
 
 Also, relay webhook will be called with the vulnerability information and relay will dispatch event to GitHub Actions workflow. Workflow will patch the image and push it to the registry.
-![Patched Image](github-patched-image.png)
+![Patched Image](images/github-patched-image.png)
 Check that the image was patched.
 
 ### Upgrade the application with patched image
@@ -138,7 +138,7 @@ helm upgrade aws-cd-georgia-demo-app . -f values.yaml -n demo
 ```
 
 Check that the deployment was scaled back to 1 replica.
-![Scaled Back Deployment](github-scaled-back-deployment.png)
+![Scaled Back Deployment](images/github-scaled-back-deployment.png)
 
 Go to Stackrox Vulnerability Management and check image vulnerability status. Now it should show that the all fixable vulnerabilities are fixed.
-![Stackrox fixed vulnerabilities](stackrox-image-fixed.png)
+![Stackrox fixed vulnerabilities](images/stackrox-image-fixed.png)
