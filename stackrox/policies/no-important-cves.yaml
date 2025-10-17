@@ -1,9 +1,9 @@
 apiVersion: config.stackrox.io/v1alpha1
 kind: SecurityPolicy
 metadata:
-  name: no-critical-cves
+  name: no-important-cves
 spec:
-  policyName: No Critical CVEs
+  policyName: No Important CVEs
   categories:
     - Kubernetes
     - Vulnerability Management
@@ -11,11 +11,9 @@ spec:
     - DEPLOY
   eventSource: NOT_APPLICABLE
   scope:
-    - cluster: 3985cdcf-74dd-4929-bb48-302ecf99bf05 ## !! Update this to your cluster ID ##
+    - cluster: 3985cdcf-74dd-4929-bb48-302ecf99bf05
       namespace: demo
-  severity: CRITICAL_SEVERITY
-  enforcementActions:
-    - UNSATISFIABLE_NODE_CONSTRAINT_ENFORCEMENT
+  severity: HIGH_SEVERITY
   notifiers:
     - stackrox-relay
   policySections:
@@ -24,11 +22,15 @@ spec:
         - fieldName: Severity
           booleanOperator: OR
           values:
-            - value: CRITICAL
+            - value: IMPORTANT
         - fieldName: Fixable
           booleanOperator: OR
           values:
             - value: "true"
+        - fieldName: Days Since CVE Was First Discovered In Image
+          booleanOperator: OR
+          values:
+            - value: "30"
   criteriaLocked: false
   mitreVectorsLocked: false
   isDefault: false

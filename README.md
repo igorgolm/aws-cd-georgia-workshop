@@ -109,15 +109,18 @@ helm install stackrox-relay stackrox-relay-service/stackrox-relay-service -f sta
 - Extra fields: not required — the relay adds `event_type` and `client_payload` automatically.
 - Attach your policy (e.g., "No Critical CVEs") to this notifier in Enforce on Admission mode. When a deployment is blocked, StackRox will send an event to the relay.
 
-### No Critical CVEs Policy
-We need to create a policy to block deployments with critical CVEs. You can find the policy in the `stackrox/policies/no-critical-cves.yaml` file, but before applying it, you need to update the cluster ID (cluster id you can find in the StackRox Central Services in clusters list).
+### No Critical and Important CVEs Policies
+We need to create policies to block deployments with critical and important CVEs. You can find the policies in the `stackrox/policies` directory. Before applying them, you need to update the cluster ID (cluster id you can find in the StackRox Central Services in clusters list).
 ```bash
-sed -i 's/ed1c6b50-da2a-4e2b-af1d-78c9453ab77d/<your-cluster-id>/g' stackrox/policies/no-critical-cves.yaml
+sed -i 's/3985cdcf-74dd-4929-bb48-302ecf99bf05/<your-cluster-id>/g' stackrox/policies/no-critical-cves.yaml
+sed -i 's/3985cdcf-74dd-4929-bb48-302ecf99bf05/<your-cluster-id>/g' stackrox/policies/no-important-cves.yaml
 kubectl apply -f stackrox/policies/no-critical-cves.yaml -n stackrox
+kubectl apply -f stackrox/policies/no-important-cves.yaml -n stackrox
 ```
 
+
 ### Demo Application
-We need to deploy the demo application with vulnerability. Make a fork of the demo application repository and update the image repository in the `values.yaml` file:
+We need to deploy the demo application with vulnerabilities. Make a fork of the demo application repository and update the image repository in the `values.yaml` file:
 ```bash
 git clone https://github.com/YOUR_GITHUB_USERNAME/aws-cd-georgia-demo-app.git
 cd aws-cd-georgia-demo-app/helm-chart
