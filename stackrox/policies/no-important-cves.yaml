@@ -11,7 +11,7 @@ spec:
     - DEPLOY
   eventSource: NOT_APPLICABLE
   scope:
-    - cluster: 3985cdcf-74dd-4929-bb48-302ecf99bf05
+    - cluster: 2801e58e-c366-4c63-be4e-edd5dd9d6084
       namespace: demo
   severity: HIGH_SEVERITY
   notifiers:
@@ -27,10 +27,6 @@ spec:
           booleanOperator: OR
           values:
             - value: "true"
-        - fieldName: Days Since CVE Was First Discovered In Image
-          booleanOperator: OR
-          values:
-            - value: "30"
   criteriaLocked: false
   mitreVectorsLocked: false
   isDefault: false
