@@ -1,4 +1,4 @@
-# aws-cd-georgia-workshop
+# From Detection to Fix: Using Stackrox and Copacetic for Container Security
 This repo contains instructions to complete the AWS CD Georgia workshop.
 
 ## Environment requirements
@@ -15,7 +15,8 @@ To participate in the workshop you need a Kubernetes cluster — either local or
 NB! In case of Mac with Apple Silicon, you need to run emulation of x86_64 architecture, because Collector serice of StackRox Secured Cluster Services is not available for Apple Silicon.
 In Rancher Desktop, you can enable emulation by going to the Preferences -> Emulation -> VZ and Enable Rosetta support for [x86_64 architecture](https://docs.rancherdesktop.io/ui/preferences/virtual-machine/emulation/). Also, for Rancher Desktop, before deploying the collector DaemonSet, you need to ensure that mount propagation will work inside the Rancher Desktop VM. By default, Rancher Desktop mounts / and /proc as private, but the DaemonSet requires them to be shared (rshared). Run these commands inside the Rancher Desktop VM before starting the deployment:
 ```bash
-rdctl shell   # enter the Rancher Desktop VM
+# enter the Rancher Desktop VM
+rdctl shell
 # inside the VM:
 sudo mount --make-rshared /
 sudo mount --make-rshared /proc
@@ -36,7 +37,10 @@ We'll install StackRox Central Services in the cluster using official Helm chart
 ```bash
 $ helm repo add stackrox https://raw.githubusercontent.com/stackrox/helm-charts/main/opensource/
 $ helm repo update
-$ helm install stackrox-central-services stackrox/stackrox-central-services -f stackrox/central-services/values.yaml -n stackrox --create-namespace --version 400.8.4
+```
+Update storageclass in `stackrox/central-services/values.yaml` for the database PVC and for scannerV4 PVC, depending on the cluster provider and then install the StackRox Central Services.
+```bash
+helm install stackrox-central-services stackrox/stackrox-central-services -f stackrox/central-services/values.yaml -n stackrox --create-namespace --version 400.8.4
 ```
 For getting access to the StackRox Central Services, you can port-forward to the StackRox Central Services and access it via the browser.
 ```bash
@@ -52,6 +56,8 @@ Choose name and platform for the init bundle.
 
 Init bundle will be created and downloaded to your local machine. We'll use it later to install the StackRox Secured Cluster Services.
 
+NB! Initial setup also requires approximately 15 minutes to complete vulnerabilities database sync.
+
 ### StackRox Secured Cluster Services Installation
 We'll install StackRox Secured Cluster Services in the cluster using official Helm chart.
 
@@ -65,12 +71,8 @@ After the installation is complete we can see in the Clusters our new cluster `m
 ![StackRox Clusters](images/stackrox-clusters.png)
 
 ### StackRox Relay Installation
-We need this service to relay events from StackRox to GitHub. We'll install it using Helm chart from our repository.
-```bash
-git clone https://github.com/igorgolm/stackrox-relay-service.git
-cd helm-chart
-```
-But before installing the Helm chart, we need to
+We need this service to relay events from StackRox to GitHub. We'll use helm chart from original repository.
+Before installing the Helm chart, we need to:
 1. Create a GitHub Personal Access Token with the following permissions:
 - Actions: Read and write
 - Workflows: Read and write
@@ -82,29 +84,28 @@ Save the token to the `values.yaml` file.
 configmap:
   GH_TOKEN: "your-token"
 ```
-
 2. Create a random secret for StackRox webhook. It is used to authenticate the relay with StackRox.
 ```yaml
 configmap:
-  STACKROX_WEBHOOK_SECRET: "your-secret"
+  ACS_WEBHOOK_SECRET: "your-secret"
 ```
-3. Set GH_REPO and GH_OWNER in the `values.yaml` file.
+3. Set GH_OWNER in the `values.yaml` file.
 ```yaml
 configmap:
-  GH_REPO: "your-repo"
   GH_OWNER: "your-owner"
 ```
-
-Then, install the Helm chart.
+Then, install the Helm chart:
 ```bash
-helm install stackrox-relay . -f values.yaml -n stackrox
+helm repo add stackrox-relay-service https://forma22-agency.github.io/stackrox-relay-service
+helm repo update
+helm install stackrox-relay stackrox-relay-service/stackrox-relay-service -f stackrox/relay/values.yaml -n stackrox --version 0.0.12
 ```
 
 4. Create a Generic Webhook in StackRox.
 ![StackRox Generic Webhook](images/stackrox-generic-webhook.png)
 - name: `stackrox-relay`
 - Endpoint: `http://stackrox-relay.stackrox.svc.cluster.local/webhook` (cluster internal address)
-- Headers: `X-ACS-TOKEN: <value of STACKROX_WEBHOOK_SECRET>`
+- Headers: `X-ACS-TOKEN: <value of ACS_WEBHOOK_SECRET>`
 - Extra fields: not required — the relay adds `event_type` and `client_payload` automatically.
 - Attach your policy (e.g., "No Critical CVEs") to this notifier in Enforce on Admission mode. When a deployment is blocked, StackRox will send an event to the relay.
 
@@ -116,14 +117,15 @@ kubectl apply -f stackrox/policies/no-critical-cves.yaml -n stackrox
 ```
 
 ### Demo Application
-We need to deploy the demo application with vulnerability.
+We need to deploy the demo application with vulnerability. Make a fork of the demo application repository and update the image repository in the `values.yaml` file:
 ```bash
+git clone https://github.com/YOUR_GITHUB_USERNAME/aws-cd-georgia-demo-app.git
 cd aws-cd-georgia-demo-app/helm-chart
 helm install aws-cd-georgia-demo-app . -f values.yaml -n demo --create-namespace
 ```
 
 Check that helm release was created.
-If our policy is working, the deployment will be downscaled to 0 replicas, because of critical vulnerability and in Stackrox dashboard we can see the violation.
+If our policy is working, we can see the violation in the Stackrox dashboard.
 ![Stackrox critical violation](images/stackrox-policy-violations.png)
 
 Also, relay webhook will be called with the vulnerability information and relay will dispatch event to GitHub Actions workflow. Workflow will patch the image and push it to the registry.
@@ -131,13 +133,11 @@ Also, relay webhook will be called with the vulnerability information and relay 
 Check that the image was patched.
 
 ### Upgrade the application with patched image
-We need to upgrade the application with patched image and check that the deployment was scaled back to 1 replica.
+We need to upgrade the application with patched image and check that the violation is resolved.
 ```bash
 cd aws-cd-georgia-demo-app/helm-chart
 helm upgrade aws-cd-georgia-demo-app . -f values.yaml -n demo
 ```
-
-Check that the deployment was scaled back to 1 replica.
 
 Go to Stackrox Vulnerability Management and check image vulnerability status. Now it should show that the all fixable vulnerabilities are fixed.
 ![Stackrox fixed vulnerabilities](images/stackrox-image-fixed.png)

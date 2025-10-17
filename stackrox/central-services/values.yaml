@@ -15,11 +15,12 @@ central:
     resources:
       limits:
         cpu: 400m
-        memory: 2Gi
+        memory: 1500Mi
       requests:
         cpu: 100m
         memory: 1Gi
     persistence:
+      # If rancher desktop is used, use "local-path" storage class
       storageClass: "local-path"
       size: 2Gi
   resources:
@@ -40,8 +41,16 @@ scannerV4:
       generate: true
     serviceTLS:
       generate: true
+    resources:
+      limits:
+        cpu: 800m
+        memory: 1500Mi
+      requests:
+        cpu: 200m
+        memory: 500Mi
     persistence:
       persistentVolumeClaim:
+        # If rancher desktop is used, use "local-path" storage class
         storageClass: "local-path"
         size: 2Gi
         createClaim: true

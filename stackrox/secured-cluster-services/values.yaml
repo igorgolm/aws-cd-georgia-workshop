@@ -19,8 +19,8 @@ image:
 sensor:
   resources:
     limits:
-      cpu: 500m
-      memory: 2Gi
+      cpu: 400m
+      memory: 700Mi
     requests:
       cpu: 200m
-      memory: 1Gi
+      memory: 300Mi

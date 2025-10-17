@@ -11,11 +11,10 @@ spec:
     - DEPLOY
   eventSource: NOT_APPLICABLE
   scope:
-    - cluster: ed1c6b50-da2a-4e2b-af1d-78c9453ab77d # Update this to your cluster ID
+    - cluster: 3985cdcf-74dd-4929-bb48-302ecf99bf05 ## !! Update this to your cluster ID ##
       namespace: demo
   severity: CRITICAL_SEVERITY
   enforcementActions:
-    - SCALE_TO_ZERO_ENFORCEMENT
     - UNSATISFIABLE_NODE_CONSTRAINT_ENFORCEMENT
   notifiers:
     - stackrox-relay
@@ -26,6 +25,7 @@ spec:
           booleanOperator: OR
           values:
             - value: CRITICAL
+            - value: IMPORTANT
         - fieldName: Fixable
           booleanOperator: OR
           values:

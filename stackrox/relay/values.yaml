@@ -1,0 +1,12 @@
+deployment:
+  image:
+    repository: ghcr.io/forma22-agency/stackrox-relay-service
+    tag: 3f891bfe09a9fce5ff56724b20e37d14e615493c
+configmap:
+  # GitHub PAT token for the relay service
+  GH_TOKEN: ""
+  # GitHub repository owner where the StackRox COPA will be dispatched
+  GH_OWNER: "igorgolm"
+  # ACS webhook secret for the relay service
+  ACS_WEBHOOK_SECRET: "mysupersecretwebhooksecret"
+  RELAY_DEBUG_PAYLOAD: "true"
